@@ -1,0 +1,108 @@
+import argparse
+
+__all__ = ['get_cli_parser']
+
+def get_cli_parser():
+    '''Creates and returns the argparse object according to the CLI requirements.'''
+
+    parser = argparse.ArgumentParser(
+        prog = 'ch10net',
+        description='Tools for network broadcast and replay of IRIG-106 Chapter 10/11 files.')
+
+    infile_parser = _create_infile_parser()
+    _add_commands(parser, infile_parser)
+    
+    return parser
+
+
+def _add_commands(
+        parser: argparse.ArgumentParser, 
+        parent_parser: argparse.ArgumentParser
+    ):
+    
+    subparser = parser.add_subparsers(
+        title='commands',
+        dest='command',
+        description='Choose a function to run',
+        help='Available commands')
+    
+    parser = subparser.add_parser(
+        'convert_pcap',
+        description='Convert Chapter 10 file to a PCAP file comprised of UDP packets',
+        parents=[parent_parser])
+    
+    _add_args_convert_pcap(parser)
+
+    parser = subparser.add_parser(
+        'replay',
+        description='Generate UDP packets from Chapter 10 file and send over a network interface',
+        parents=[parent_parser])
+    
+    _add_args_replay(parser)
+
+
+def _add_args_convert_pcap(parser : argparse.ArgumentParser):
+    parser.add_argument(
+        '--out',
+        '-o',
+        dest="outfile",
+        help='The output filepath of the converted PCAP file')
+
+def _add_args_replay(parser : argparse.ArgumentParser):
+    parser.add_argument(
+        '--port',
+        '-p',
+        dest='port',
+        type=int,
+        default=5006,
+        help='The destination port number of the UDP packets')
+
+    parser.add_argument(
+        '--ip',
+        dest='ip',
+        type=str,
+        help='The destination IP address of the UDP packets',
+        default='127.0.0.1')
+
+
+def _create_infile_parser():
+    parser = argparse.ArgumentParser(
+        'infile',
+        add_help=False
+    )
+
+    group = parser.add_argument_group('Chapter 10 Input File')
+    
+    group.add_argument(
+        'in_pathname',
+        type=str,
+        help='Pathname of the Chapter 10 input file')
+    
+    group.add_argument(
+        '--channels',
+        '-c',
+        dest='channel_ids',
+        type=_channel_id_list,
+        help='List (comma-separated) of exclusive channel IDs to include in processing')
+    
+    group.add_argument(
+        '--types',
+        '-t',
+        dest='channel_types',
+        type=_channel_type_list,
+        help='List (comma-separated) of exclusive channel types to include in processing')
+    
+    return parser
+
+def _channel_id_list(s : str):
+    tokens = s.split(',')
+    ids = [int(x) for x in tokens if len(x) != 0]
+
+    if (any(n < 0 for n in ids)):
+        raise ValueError('ChannelID must be positive integer')
+    
+    return ids
+
+def _channel_type_list(s : str):
+    tokens = s.split(',')
+    return [int(x, 0) for x in tokens if len(x) != 0]
