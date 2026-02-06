@@ -1,11 +1,13 @@
-import argparse
+from os.path import isfile
+from argparse import *
+
 
 __all__ = ['get_cli_parser']
 
 def get_cli_parser():
     '''Creates and returns the argparse object according to the CLI requirements.'''
 
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         prog = 'ch10net',
         description='Tools for network broadcast and replay of IRIG-106 Chapter 10/11 files.')
 
@@ -16,8 +18,8 @@ def get_cli_parser():
 
 
 def _add_commands(
-        parser: argparse.ArgumentParser, 
-        parent_parser: argparse.ArgumentParser
+        parser: ArgumentParser, 
+        parent_parser: ArgumentParser
     ):
     
     subparser = parser.add_subparsers(
@@ -41,14 +43,14 @@ def _add_commands(
     _add_args_replay(parser)
 
 
-def _add_args_convert_pcap(parser : argparse.ArgumentParser):
+def _add_args_convert_pcap(parser : ArgumentParser):
     parser.add_argument(
         '--out',
         '-o',
         dest="outfile",
         help='The output filepath of the converted PCAP file')
 
-def _add_args_replay(parser : argparse.ArgumentParser):
+def _add_args_replay(parser : ArgumentParser):
     parser.add_argument(
         '--port',
         '-p',
@@ -66,7 +68,7 @@ def _add_args_replay(parser : argparse.ArgumentParser):
 
 
 def _create_infile_parser():
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         'infile',
         add_help=False
     )
@@ -75,7 +77,7 @@ def _create_infile_parser():
     
     group.add_argument(
         'in_pathname',
-        type=str,
+        type=_file_path_name,
         help='Pathname of the Chapter 10 input file')
     
     group.add_argument(
@@ -94,12 +96,18 @@ def _create_infile_parser():
     
     return parser
 
+def _file_path_name(s : str):
+    if (not isfile(s)):
+        raise ArgumentError('Specified input pathname is no a valid file')
+    
+    return s
+
 def _channel_id_list(s : str):
     tokens = s.split(',')
     ids = [int(x) for x in tokens if len(x) != 0]
 
     if (any(n < 0 for n in ids)):
-        raise ValueError('ChannelID must be positive integer')
+        raise ArgumentError('ChannelID must be positive integer')
     
     return ids
 
