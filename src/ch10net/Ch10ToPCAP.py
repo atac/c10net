@@ -6,6 +6,8 @@ import struct
 MAX_BYTES_PER_MESSAGE = 32726
 MAX_MSG_SIZE = 1472
 
+#data_types = {} 
+#channels = {}
 data_types = {0x40, 0x41, 0x42, 0x43, 0x44}
 channels = {10}
 
@@ -41,7 +43,7 @@ def GetUdpTransferHeaderFirstWord(channel: int, segmented: bool):
     type = 0b0001 if segmented else 0b0000
     seq_num = GetUdpSequenceNum()
     word = (seq_num << 8) | (type << 4) | ver
-    header = struct.pack("!I", word)
+    header = struct.pack("<I", word)
     return header
 
 def GetNonSegmentedUdpTransferHeader(channel: int):
@@ -51,8 +53,8 @@ def GetSegmentedUdpTransferHeader(channel: int, sequence_num: int, offset: int):
     headerWord1 = GetUdpTransferHeaderFirstWord(channel, True)
 
     word = (sequence_num << 16) | (channel & 0xFF)
-    headerWord2 = struct.pack("!I", word)
-    headerWord3 = struct.pack("!I", offset)
+    headerWord2 = struct.pack("<I", word)
+    headerWord3 = struct.pack("<I", offset)
 
     return headerWord1 + headerWord2 + headerWord3
 
@@ -73,9 +75,9 @@ if __name__ == "__main__":
     iterations = 0
 
     for packet in C10(infile):
-        if packet.data_type not in data_types:
+        if len(data_types) > 0 and packet.data_type not in data_types:
             continue
-        if packet.channel_id not in channels:
+        if len(channels) > 0 and packet.channel_id not in channels:
             continue
 
         time = packet.get_time()
@@ -108,8 +110,8 @@ if __name__ == "__main__":
             capture.save_to_pcap()
             iterations += 1
         
-        #if (iterations == 3):
-        #    exit()
+        # if (iterations == 2):
+        #     exit()
     
     capture.save_to_pcap()
     capture.close()
