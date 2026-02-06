@@ -7,7 +7,7 @@ progress = 0
 
 
 
-def replay_pcap_with_timestamps(pcap_file, interface="Microsoft KM-TEST Loopback Adapter"):
+def replay_pcap_with_timestamps(pcap_file):
     """
     Replays packets from a pcap file over the specified network interface while preserving the
     original timestamps of the packets.
@@ -27,6 +27,8 @@ def replay_pcap_with_timestamps(pcap_file, interface="Microsoft KM-TEST Loopback
 
     first_time = packets[0].time
     last_time = packets[len(packets) - 1].time
+
+    print(packets[0])
     
     # Get the timestamp of the first packet
     previous_packet_time = packets[0].time
@@ -47,12 +49,15 @@ def replay_pcap_with_timestamps(pcap_file, interface="Microsoft KM-TEST Loopback
         time.sleep(float(delay))
 
         # modify destination port and IP
+        #packet.payload.dst = '127.0.0.1'
+        #packet.payload.dst = '169.254.247.1'
         packet.payload.dst = '169.254.210.10'
+        #packet.payload.dst = '192.168.50.44'
+        
         packet.payload.payload.dport = 5006
         
         # Send the packet over the network
-        sendp(packet, iface=interface, verbose=False)
-        #print(f"Replayed packet: {packet.summary()} at {delay:.2f} seconds")
+        send(packet.payload, verbose=False)
         
     print("Replay complete.")
 
