@@ -6,10 +6,10 @@ This module manages CLI arguments to coordinate module initialization.
 
 import sys
 from threading import Thread, Event
-from ch10net.parse_chapter10 import *
 
 from pytimedinput import timedKey
 from cli import *
+import parse_chapter10 as parse_ch10
 
 _threads = []  # List to keep track of threads for cleanup
 _terminate_events = []  # List to keep track of termination events for cleanup
@@ -30,14 +30,30 @@ def main():
 
 
 def stage_replay(args):
-    _threads.append(Thread(target=parse_file, args=(args)))
-    _threads.append(Thread(target=replay_packets, args=(args)))
+    source_sink = (parse_ch10.retreive_packets, send_udp.deposit_packets)
+    _threads.append(Thread(target=parse_ch10.parse_file, args=(args)))
+    _threads.append(Thread(target=pipe_packets, args=source_sink))
+    _threads.append(Thread(target=send_udp.replay_packets, args=(args)))
+
+    _terminate_events.append(parse_ch10.terminate_event)
+    _terminate_events.append(send_udp.terminate_event)
 
 
 def stage_capture_pcap(args):
-    _threads.append(Thread(target=parse_file, args=(args)))
-    _threads.append(Thread(target=capture_pcap_packets, args=(args)))
+    source_sink = (parse_ch10.retreive_packets, gen_pcap.deposit_packets)
+    _threads.append(Thread(target=parse_ch10.parse_file, args=(args)))
+    _threads.append(Thread(target=pipe_packets, args=source_sink))
+    _threads.append(Thread(target=gen_pcap.capture_pcap_packets, args=(args)))
 
+    _terminate_events.append(parse_ch10.terminate_event)
+    _terminate_events.append(gen_pcap.terminate_event)
+
+
+def pipe_packets(source_func, sink_func):
+    """Continuously pipe packets from a source function to a sink function until termination is requested."""
+    while not should_exit.is_set():
+        packets = source_func()
+        sink_func(packets)
 
 def run():
     for thread in _threads:
