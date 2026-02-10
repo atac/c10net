@@ -2,12 +2,14 @@ from queue import *
 from threading import Event
 from chapter10 import C10
 
-__all__ = ['parse_file', 'read_packets','terminate_event']
+__all__ = ['parse_file', 'retrieve_packets', 'terminate_event']
 
 channel_types = {} 
 channel_ids = {}
 
-q = Queue(maxsize=10000)
+QUEUE_SIZE = 10000
+GET_SIZE = 5000
+q = Queue(maxsize=QUEUE_SIZE)
 
 terminate_event = Event()
 
@@ -37,18 +39,20 @@ def set_filter_parameters(ids, types):
     
 def read_packets(infile):
     for packet in C10(infile):
-        # Check for termination request regularly so threads can exit cleanly.
+        
         if terminate_event.is_set():
             # perform any per-thread cleanup here if needed
             break
 
-        if (not passes_filter(packet.channel_id, packet.data_type)):
+        if (passes_filter(packet.channel_id, packet.data_type)):
+            try:
+                q.put(packet)
+            except Exception:
+                print("exception in  parse_chapter10.read_packets while putting packet in queue")
+                break
+        else:
             continue
 
-        time = packet.get_time()
-        data = packet.__bytes__()
-        length = len(data)
-        
 
 def passes_filter(id, type):
     """Returns False if id or type are not in their respective [non-empty] filter lists."""
@@ -61,11 +65,17 @@ def passes_filter(id, type):
     return True
 
 
-def retreive_packets():
-    """Generator that yields packets from the internal queue."""
-    while not terminate_event.is_set():
-        try:
-            packet = q.get(timeout=1)  # Adjust timeout as needed
-            yield packet
-        except Empty:
-            continue
+def retrieve_packets():
+    """Generator that returns packets from the internal queue."""
+    packets = []
+    
+    if (not terminate_event.is_set()):
+            for i in range(GET_SIZE):
+                try:
+                    packets.append(q.get_nowait())
+                except Empty:
+                    break
+                except Exception:
+                    break
+    
+    return packets
