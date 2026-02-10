@@ -41,21 +41,10 @@ def generate_transfer_headers(channel_id: int, packet_size: int):
             else:
                 length = 0
     else:
-        transferHeader = GetNonSegmentedUdpTransferHeader(packet.channel_id)
-        payload = transferHeader + data
-        CreatePacket(payload, time.timestamp())
+        h = GetNonSegmentedUdpTransferHeader(channel_id)
+        headers.append((0, h))
 
     return headers
-
-    # time
-    # data
-    # length
-    # channel_id
-    # segmented
-    None
-    # if segmented:
-    # get channel sequence num based on channel id
-    # for each segment: get segmented header for offset
 
 def reset():
     _seq_count.clear()
