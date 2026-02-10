@@ -2,7 +2,10 @@ from os.path import isfile
 from argparse import *
 
 
-__all__ = ['get_cli_parser']
+command_replay = 'replay'
+command_convert_pcap = 'convert_pcap'
+
+__all__ = ['get_cli_parser', 'command_replay', 'command_convert_pcap']
 
 def get_cli_parser():
     '''Creates and returns the argparse object according to the CLI requirements.'''
@@ -29,14 +32,14 @@ def _add_commands(
         help='Available commands')
     
     parser = subparser.add_parser(
-        'convert_pcap',
+        command_convert_pcap,
         description='Convert Chapter 10 file to a PCAP file comprised of UDP packets',
         parents=[parent_parser])
     
     _add_args_convert_pcap(parser)
 
     parser = subparser.add_parser(
-        'replay',
+        command_replay,
         description='Generate UDP packets from Chapter 10 file and send over a network interface',
         parents=[parent_parser])
     
