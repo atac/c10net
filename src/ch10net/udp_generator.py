@@ -1,37 +1,28 @@
 from scapy.all import Ether, IP, UDP, Raw
-from typing import List
 
-__all__ = ['set_udp_properties', 'create_udp_packet']
+class UdpGenerator:
+    def __init__(
+            self,
+            source_ip="192.168.0.1", 
+            destination_ip="127.0.0.1",
+            source_port=12345, 
+            destination_port=5006, 
+            source_mac="00:11:22:33:44:55",
+            destination_mac="ff:ff:ff:ff:ff:ff"
+            ):
+        self._src_ip = source_ip
+        self._dst_ip = destination_ip
+        self._src_port = source_port
+        self._dst_port = destination_port
+        self._src_mac = source_mac
+        self._dst_mac = destination_mac
 
-src_ip = ""
-dst_ip = ""
-src_port = 0
-dst_port = 0
-src_mac = ""
-dst_mac = ""
+    def create_udp_packet(self, payload: bytes, timestamp_s: float):
+        
+        ether = Ether(src=self._src_mac, dst=self._dst_mac)
+        ip = IP(src=self._src_ip, dst=self._dst_ip)
+        udp = UDP(sport=self._src_port, dport=self._dst_port)
+        packet = ether / ip / udp / Raw(load=payload)
+        packet.time = timestamp_s
 
-def set_udp_properties( 
-        source_ip="192.168.0.1", 
-        destination_ip="127.0.0.1",
-        source_port=12345, 
-        destination_port=5006, 
-        source_mac="00:11:22:33:44:55",
-        destination_mac="ff:ff:ff:ff:ff:ff"
-        ):
-    global src_ip, dst_ip, src_port, dst_port, src_mac, dst_mac
-    src_ip = source_ip
-    dst_ip = destination_ip
-    src_port = source_port
-    dst_port = destination_port
-    src_mac = source_mac
-    dst_mac = destination_mac
-
-def create_udp_packet(payload: bytes, timestamp_s: float):
-    
-    ether = Ether(src=src_mac, dst=dst_mac)
-    ip = IP(src=src_ip, dst=dst_ip)
-    udp = UDP(sport=src_port, dport=dst_port)
-    packet = ether / ip / udp / Raw(load=payload)
-    packet.time = timestamp_s
-
-    return packet
+        return packet
