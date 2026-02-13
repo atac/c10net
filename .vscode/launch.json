@@ -1,13 +1,14 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
-            "name": "Python Debugger: Current File with Arguments",
+            "name": "Python Debugger: Main application",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "C:\\atac\\python-scripts\\Ch10Streamer\\ch10net\\src\\ch10net\\ch10net.py",
             "console": "integratedTerminal",
-            "args": "simulfour1.ch10"
+            "args": "convert_pcap C:\\data\\synthetic\\output\\system-test.ch10 --out test-out.pcap"
         }
     ]
 }
