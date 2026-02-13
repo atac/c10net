@@ -88,6 +88,7 @@ def _create_infile_parser():
         '-c',
         dest='channel_ids',
         type=_channel_id_list,
+        default=[],
         help='List (comma-separated) of exclusive channel IDs to include in processing')
     
     group.add_argument(
@@ -95,6 +96,7 @@ def _create_infile_parser():
         '-t',
         dest='channel_types',
         type=_channel_type_list,
+        default=[],
         help='List (comma-separated) of exclusive channel types to include in processing')
     
     return parser
