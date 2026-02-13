@@ -5,8 +5,8 @@ and writes them toa PCAP file.
 
 from threading import Event
 
-from task_data_pipe import DataPipe
-from ch10net.functions.ethernet_packet_generator import EthernetGenerator
+from tasks.data_pipe import DataPipe
+from functions.ethernet_packet_generator import EthernetGenerator
 
 __all__ = ['build_ethernet_packets', 'deposit_chapter10_packets', 'terminate', 'finish']
 
@@ -30,7 +30,7 @@ def build_ethernet_packets(cli_args, data_sink_func : function):
 
         for packet in ch10_packets:
             eth_packets = eth_gen.generate_from_chapter10(packet)
-            out_data.append(eth_packets)
+            out_data += (eth_packets)
         
         data_sink_func(out_data)
 

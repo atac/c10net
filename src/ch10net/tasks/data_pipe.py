@@ -15,7 +15,7 @@ from threading import Event
 class DataPipe:
     def __init__(self, terminate_event : Event, max_queue_size=10000):
         self.MAX_QUEUE_SIZE = max_queue_size
-        self.RETRIEVAL_SIZE = self.MAX_QUEUE_SIZE / 2
+        self.RETRIEVAL_SIZE = int(self.MAX_QUEUE_SIZE / 2)
 
         self.terminate = terminate_event
         self._queue = Queue(maxsize=self.MAX_QUEUE_SIZE)

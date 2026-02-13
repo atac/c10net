@@ -7,8 +7,8 @@ from chapter10 import C10
 
 __all__ = ['parse_file', 'terminate']
 
-_channel_types = {} 
-_channel_ids = {}
+_channel_types = []
+_channel_ids = []
 
 terminate = Event()
 
@@ -33,13 +33,19 @@ def _set_filter_parameters(ids, types):
     :param ids: List of channel IDs to include in processing.
     :param types: List of channel types to include in processing.
     """
-    global channel_types, channel_ids
+    global _channel_types, _channel_ids
 
-    if (type(channel_ids) == type(ids)):
-        channel_ids = ids
+    _channel_types.clear()
+    _channel_ids.clear()
 
-    if (type(channel_types) == type(types)):
-        channel_types = types
+    if ids:
+        _channel_ids.extend(ids)
+    
+    if types:
+        _channel_types.extend(types)
+
+    if (type(_channel_types) == type(types)):
+        _channel_types = types
     
     
 def _read_packets(infile, sink):

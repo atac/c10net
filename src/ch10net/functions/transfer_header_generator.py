@@ -28,6 +28,8 @@ class UdpTransferHeaderGenerator():
         """
         headers = []
 
+        length = packet_size
+
         if (length > self.MAX_MSG_SIZE):
             offset = 0
             seq_num = self.GetChannelSequenceNum(channel_id)
@@ -67,12 +69,12 @@ class UdpTransferHeaderGenerator():
         return num
 
     def GetUdpSequenceNum(self):
-        if (self.udp_sequence == 0xFFFFFF):
-            self.udp_sequence = 0
+        if (self._udp_sequence == 0xFFFFFF):
+            self._udp_sequence = 0
         else:
-            self.udp_sequence += 1
+            self._udp_sequence += 1
         
-        return self.udp_sequence
+        return self._udp_sequence
 
     def GetUdpTransferHeaderFirstWord(self, channel: int, segmented: bool):
         ver = 0b0001
