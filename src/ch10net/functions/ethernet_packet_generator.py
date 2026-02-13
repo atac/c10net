@@ -1,5 +1,7 @@
-from ch10net.functions.transfer_header_generator import UdpTransferHeaderGenerator
-from ch10net.functions.udp_generator import UdpGenerator
+from datetime import *
+
+from functions.transfer_header_generator import UdpTransferHeaderGenerator
+from functions.udp_generator import UdpGenerator
 
 
 class EthernetGenerator:
@@ -11,21 +13,22 @@ class EthernetGenerator:
         port = 5006
         ip = "127.0.0.1"
 
-        if (args.port):
+        if hasattr(args, 'port'):
             port = args.port
-        if (args.ip):
+        if hasattr(args, 'ip'):
             ip = args.ip
         
         self._udp_gen = UdpGenerator(destination_ip=ip, destination_port=port)
 
-    def generate_from_chapter10(self, packets):
+    def generate_from_chapter10(self, packet):
         udp_packets = []
         
-        for packet in packets:
-            segs = self._with_transfer_headers(packet)
-            for seg in segs:
-                udp = self._udp_gen.create_udp_packet(seg, packet.get_time())
-                udp_packets.append(udp)
+        segs = self._with_transfer_headers(packet)
+        for seg in segs:
+            time = packet.get_time()
+            time = time.replace(tzinfo=timezone.utc)
+            udp = self._udp_gen.create_udp_packet(seg, time.timestamp())
+            udp_packets.append(udp)
 
         return udp_packets
 
