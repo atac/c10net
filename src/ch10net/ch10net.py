@@ -96,7 +96,8 @@ def terminate_all_threads():
 
 
 def stage_capture_pcap(cli_args):
-    if (cli_args.parallel): # TODO: test this process again
+    #if (cli_args.parallel): # TODO: test this process again
+    if (False):
         _threads.append(Thread(
             target=parse_ch10.parse_file,
             args=(
@@ -141,7 +142,8 @@ def stage_replay(cli_args):
     # _terminate_events.append(send_udp.terminate_event)
 
     # _source_thread = _threads[0]
-    if (cli_args.parallel):
+    #if (cli_args.parallel):
+    if (False):
         None
     else:
         chapter10_to_replay.run_task(cli_args)
