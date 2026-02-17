@@ -25,9 +25,8 @@ def write_packets_to_pcap(outfile : str):
         
         eth_packets = _pipe.retrieve()
 
-        for e in eth_packets:
-            if (writer):
-                writer.write(e)
+        if writer:
+            writer.write(eth_packets)
 
         writer.flush()
 
