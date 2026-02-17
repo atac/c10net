@@ -19,10 +19,10 @@ def run_task(cli_args):
         cli_args.channel_types
     )
 
-    file_pos = 0.0
     have_time = False
     buf = []
 
+    file_pos = 0.0
     size = os.path.getsize(cli_args.in_pathname)
     bar.set_bounds(0, size)
 
@@ -30,6 +30,7 @@ def run_task(cli_args):
 
     for packet in file:
         file_pos += packet.packet_length
+        bar.update_progress(file_pos)
 
         if (not have_time):
             if (packet.parent and packet.parent.last_time is not None):
@@ -52,5 +53,4 @@ def run_task(cli_args):
             for eth in eth_packets:
                 replay.replay_packet_with_timestamp(eth)
             
-            bar.update_progress(file_pos)
     
