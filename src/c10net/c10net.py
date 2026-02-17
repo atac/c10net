@@ -1,5 +1,5 @@
 '''
-Main entry for the ch10net tools.
+Main entry for the c10net tools.
 
 This module manages CLI arguments to coordinate module initialization.
 '''

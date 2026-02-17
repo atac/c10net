@@ -1,5 +1,5 @@
 """
-UDP transfer header generator for ch10net.
+UDP transfer header generator for c10net.
 
 Generates UDP transfer headers according to the IRIG-106 Chapter 10 standard
 for both segmented and non-segmented transfers. This module is used in the 

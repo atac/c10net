@@ -6,7 +6,7 @@
             "name": "Python Debugger: Main application",
             "type": "debugpy",
             "request": "launch",
-            "program": "C:\\atac\\python-scripts\\Ch10Streamer\\ch10net\\src\\ch10net\\ch10net.py",
+            "program": "C:\\atac\\python-scripts\\Ch10Streamer\\c10net\\src\\c10net\\c10net.py",
             "console": "integratedTerminal",
             "args": "convert_pcap C:\\data\\synthetic\\output\\system-test.ch10 --out test-out.pcap"
         }

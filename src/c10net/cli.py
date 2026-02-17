@@ -11,7 +11,7 @@ def get_cli_parser():
     '''Creates and returns the argparse object according to the CLI requirements.'''
 
     parser = ArgumentParser(
-        prog = 'ch10net',
+        prog = 'c10net',
         description='Tools for network broadcast and replay of IRIG-106 Chapter 10/11 files.')
 
     # parser.add_argument(
