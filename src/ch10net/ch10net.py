@@ -15,6 +15,7 @@ import tasks.chapter10_to_ethernet as ch10_to_eth
 import tasks.write_to_pcap as write_to_pcap
 
 import chapter10_to_pcap
+import chapter10_to_replay
 
 _source_thread = None # Reference to the source thread to determine finished condition
 _threads = []  # List to keep track of threads for cleanup
@@ -30,23 +31,22 @@ def main():
 
     print(args)
 
-    chapter10_to_pcap.run_task(args)
-    # if (args.command == cli.command_replay):
-    #     stage_replay(args)
-    # elif (args.command == cli.command_convert_pcap):
-    #     stage_capture_pcap(args)
-    # else:
-    #     print("No valid command provided. Use -h for help.")
-    #     sys.exit(1)
+    if (args.command == cli.command_replay):
+        stage_replay(args)
+    elif (args.command == cli.command_convert_pcap):
+        stage_capture_pcap(args)
+    else:
+        print("No valid command provided. Use -h for help.")
+        sys.exit(1)
 
-    # run()
+    run()
 
-    # global should_terminate
-    # if (should_terminate.is_set()):
-    #     terminate_all_threads()
+    global should_terminate
+    if (should_terminate.is_set()):
+        terminate_all_threads()
         
-    # for thread in _threads:
-    #     thread.join()  # Wait for all threads to finish
+    for thread in _threads:
+        thread.join()  # Wait for all threads to finish
 
 
 def run():
@@ -96,32 +96,37 @@ def terminate_all_threads():
 
 
 def stage_capture_pcap(cli_args):
-    _threads.append(Thread(
-        target=parse_ch10.parse_file,
-        args=(
-            cli_args.channel_ids,
-            cli_args.channel_types,
-            cli_args.in_pathname,
-            ch10_to_eth.deposit_chapter10_packets
-        )))
-    _threads.append(Thread(
-        target=ch10_to_eth.build_ethernet_packets,
-        args=(cli_args, write_to_pcap.deposit_ethernet_packets)
-        ))
-    _threads.append(Thread(
-        target=write_to_pcap.write_packets_to_pcap,
-        args=(cli_args.outfile,)
-        ))
+    if (cli_args.parallel): # TODO: test this process again
+        _threads.append(Thread(
+            target=parse_ch10.parse_file,
+            args=(
+                cli_args.channel_ids,
+                cli_args.channel_types,
+                cli_args.in_pathname,
+                ch10_to_eth.deposit_chapter10_packets
+            )))
+        _threads.append(Thread(
+            target=ch10_to_eth.build_ethernet_packets,
+            args=(cli_args, write_to_pcap.deposit_ethernet_packets)
+            ))
+        _threads.append(Thread(
+            target=write_to_pcap.write_packets_to_pcap,
+            args=(cli_args.outfile,)
+            ))
 
-    _terminate_events.append(parse_ch10.terminate)
-    _terminate_events.append(ch10_to_eth.terminate)
-    _terminate_events.append(write_to_pcap.terminate)
+        _terminate_events.append(parse_ch10.terminate)
+        _terminate_events.append(ch10_to_eth.terminate)
+        _terminate_events.append(write_to_pcap.terminate)
 
-    _finish_events.append(ch10_to_eth.finish)
-    _finish_events.append(write_to_pcap.finish)
+        _finish_events.append(ch10_to_eth.finish)
+        _finish_events.append(write_to_pcap.finish)
 
-    global _source_thread
-    _source_thread = _threads[0]
+        global _source_thread
+        _source_thread = _threads[0]
+    else:
+        chapter10_to_pcap.run_task(cli_args)
+        sys.exit(0)
+    
 
 
 def stage_replay(cli_args):
@@ -136,6 +141,11 @@ def stage_replay(cli_args):
     # _terminate_events.append(send_udp.terminate_event)
 
     # _source_thread = _threads[0]
+    if (cli_args.parallel):
+        None
+    else:
+        chapter10_to_replay.run_task(cli_args)
+        sys.exit(0)
 
 
 
