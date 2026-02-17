@@ -14,6 +14,12 @@ def get_cli_parser():
         prog = 'ch10net',
         description='Tools for network broadcast and replay of IRIG-106 Chapter 10/11 files.')
 
+    # parser.add_argument(
+    #     '--parallel',
+    #     action='store_true',
+    #     help='Whether to run the processing stages in parallel threads [when available]'
+    # )
+
     infile_parser = _create_infile_parser()
     _add_commands(parser, infile_parser)
     
