@@ -1,0 +1,56 @@
+
+import os
+
+from chapter10 import C10
+
+import tasks.parse_chapter10 as pc10
+import tasks.udp_replay as replay
+
+import functions.ethernet_packet_generator as ethernet_gen
+import functions.progress_bar as bar
+
+
+
+def run_task(cli_args):
+    eth_gen = ethernet_gen.EthernetGenerator(cli_args)
+
+    pc10._set_filter_parameters(
+        cli_args.channel_ids,
+        cli_args.channel_types
+    )
+
+    file_pos = 0.0
+    have_time = False
+    buf = []
+
+    size = os.path.getsize(cli_args.in_pathname)
+    bar.set_bounds(0, size)
+
+    file = C10(cli_args.in_pathname)
+
+    for packet in file:
+        file_pos += packet.packet_length
+
+        if (not have_time):
+            if (packet.parent and packet.parent.last_time is not None):
+                have_time = True
+            else:
+                buf.append(packet)
+                continue
+
+        if (len(buf) > 0):
+            for p in buf:
+                p.parent.last_time = packet.parent.last_time
+                if (pc10._passes_filter(p.channel_id, p.data_type)):
+                    eth_packets = eth_gen.generate_from_chapter10(p)
+                    for eth in eth_packets:
+                        replay.replay_packet_with_timestamp(eth)
+            buf = []
+
+        if (pc10._passes_filter(packet.channel_id, packet.data_type)):
+            eth_packets = eth_gen.generate_from_chapter10(packet)
+            for eth in eth_packets:
+                replay.replay_packet_with_timestamp(eth)
+            
+            bar.update_progress(file_pos)
+    
