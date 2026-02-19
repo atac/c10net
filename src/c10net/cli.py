@@ -74,6 +74,15 @@ def _add_args_replay(parser : ArgumentParser):
         type=str,
         help='The destination IP address of the UDP packets',
         default='127.0.0.1')
+    
+    parser.add_argument(
+        '--pulse',
+        dest='pulse_interval',
+        nargs='?',
+        const=1.0,
+        type=float,
+        help='Pulse the setup packet. Optionally specify the interval in seconds (default=1.0)'
+    )
 
 
 def _create_infile_parser():
