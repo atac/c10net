@@ -3,12 +3,14 @@ Read packets from a Chapter 10 file, apply optional filters, and pass them to a 
 """
 
 from threading import Event
-from chapter10 import C10
+from chapter10 import C10, packet
 
 __all__ = ['parse_file', 'terminate']
 
 _channel_types = []
 _channel_ids = []
+
+_pass_setup_packet = False
 
 terminate = Event()
 
@@ -26,14 +28,15 @@ def parse_file(
     _read_packets(infile, data_sink_func)
 
 
-def _set_filter_parameters(ids, types):
+def _set_filter_parameters(ids, types, pass_setup_packet = False):
     """
     Set the filter parameters for channel IDs and types. These parameters will be used to determine which packets to process.
     
     :param ids: List of channel IDs to include in processing.
     :param types: List of channel types to include in processing.
+    :param pass_setup_packet: Set True to allow the setup packet (TMATS) to always pass the filter.
     """
-    global _channel_types, _channel_ids
+    global _channel_types, _channel_ids, _pass_setup_packet
 
     _channel_types.clear()
     _channel_ids.clear()
@@ -46,6 +49,8 @@ def _set_filter_parameters(ids, types):
 
     if (type(_channel_types) == type(types)):
         _channel_types = types
+    
+    _pass_setup_packet = pass_setup_packet
     
     
 def _read_packets(infile, sink):
@@ -65,7 +70,10 @@ def _read_packets(infile, sink):
 
 def _passes_filter(id, type):
     """Returns False if id or type are not in their respective [non-empty] filter lists."""
-    global _channel_types, _channel_ids
+    global _channel_types, _channel_ids, _pass_setup_packet
+
+    if (_pass_setup_packet and id == 0 and type == 1):
+        return True
 
     if (len(_channel_ids) > 0 and id not in _channel_ids):
         return False
