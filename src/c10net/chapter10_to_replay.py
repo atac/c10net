@@ -8,14 +8,14 @@ import tasks.udp_replay as replay
 
 import functions.ethernet_packet_generator as ethernet_gen
 import functions.progress_bar as bar
-import functions.setup_packet_pulse as pulse
+import functions.packet_pulser as pulser
 
 
 
 def run_task(cli_args):
     eth_gen = ethernet_gen.EthernetGenerator(cli_args)
 
-    pulser = None
+    setup_pulser = None
     use_pulse = False
     if hasattr(cli_args, 'pulse_interval'):
         use_pulse = True
@@ -41,12 +41,12 @@ def run_task(cli_args):
         bar.update_progress(file_pos)
 
         if use_pulse:
-            if not pulser:
+            if not setup_pulser:
                 if packet.channel_id == 0 and packet.data_type == 0x01:
-                    pulser = pulse.SetupPacketPulse(packet)
-                    pulser.set_interval(pulse_interval)
+                    setup_pulser = pulser.PacketPulser(packet)
+                    setup_pulser.set_interval(pulse_interval)
             else:
-                setup_packet = pulser.get_pulse()
+                setup_packet = setup_pulser.check_pulse()
                 if not setup_packet is None:
                     buf.append(setup_packet)
 

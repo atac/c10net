@@ -2,16 +2,16 @@ import time
 
 from chapter10 import packet
 
-class SetupPacketPulse:
-    def __init__(self, setup_packet : packet):
+class PacketPulser:
+    def __init__(self, packet : packet):
         self._interval_s = 1.0
         self._last_pulse_time = time.time()
-        self._packet = setup_packet
+        self._packet = packet
 
     def set_interval(self, interval : float):
         self._interval_s = interval
     
-    def get_pulse(self):
+    def check_pulse(self):
         time_s = time.time()
         if (self._is_past_time_interval(time_s)):
             self._last_pulse_time = time_s
