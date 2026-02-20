@@ -1,7 +1,7 @@
 
 _start = 0.0
 _end = 0.0
-_progress = 0
+_progress = 0.0
 
 
 def set_bounds(start, end):
@@ -18,9 +18,10 @@ def update_progress(current: float):
     curr = current - _start
 
     percent = (curr / time_range) * 100.0
+    percent = round(percent, 1)
 
-    if (int(percent > _progress)):
-        _progress = int(percent)
+    if (percent > _progress):
+        _progress = percent
         _print_progress()
     
 def _print_progress():
