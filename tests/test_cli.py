@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from argparse import ArgumentTypeError, ArgumentError
+from argparse import ArgumentTypeError
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
@@ -38,6 +38,10 @@ def test_convert_pcap_args(monkeypatch):
 
         result = parser.parse_args(['convert_pcap', '-o ' + pathname, inname])
         assert result.outfile.strip() == pathname
+
+        result = parser.parse_args(['convert_pcap', inname])
+        assert not result.outfile
+
     except SystemExit:
         assert False
 
