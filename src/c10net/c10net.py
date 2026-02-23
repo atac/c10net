@@ -6,6 +6,7 @@ This module manages CLI arguments to coordinate module initialization.
 
 import sys
 from threading import Thread, Event
+from pathlib import Path
 
 from pytimedinput import timedKey
 
@@ -28,12 +29,14 @@ should_finish = False
 
 def main():
     args = cli.get_cli_parser().parse_args(sys.argv[1:])
-
-    print(args)
+    
+    #print(args)
 
     if (args.command == cli.command_replay):
         stage_replay(args)
     elif (args.command == cli.command_convert_pcap):
+        if not args.outfile:
+            args.outfile = _get_default_pcap_out_filepath_from_infile(args.in_pathname)
         stage_capture_pcap(args)
     else:
         print("No valid command provided. Use -h for help.")
@@ -149,6 +152,11 @@ def stage_replay(cli_args):
         chapter10_to_replay.run_task(cli_args)
         sys.exit(0)
 
+
+def _get_default_pcap_out_filepath_from_infile(in_pathname):
+    inpath = Path(in_pathname)
+    result = inpath.with_suffix('.pcap')
+    return str(result)
 
 
 
