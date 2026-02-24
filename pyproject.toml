@@ -10,6 +10,26 @@ requires-python = ">=3.9"
 license = ""
 license-files = ["LICEN[CS]E*"]
 
+dependencies = [
+    "bitarray>=3.8.0",
+    "bitstring>=4.3.1",
+    "bitstruct>=8.11.0",
+    "colorama>=0.4.6",
+    "editables>=0.5",
+    "iniconfig>=2.3.0",
+    "packaging>=26.0",
+    "pluggy>=1.6.0",
+    "pychapter10>=1.1.19",
+    "Pygments>=2.19.2",
+    "pytimedinput>=2.0.1",
+    "scapy>=2.7.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=9.0.2",
+]
+
 [project.urls]
 Homepage = "https://github.com/atac/c10net"
 Issues = "https://github.com/atac/c10net/issues"
