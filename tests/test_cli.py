@@ -54,6 +54,7 @@ def test_replay_args(monkeypatch):
     result = parser.parse_args(['replay', '--pulse', infile])
     assert result.pulse
     assert result.pulse == pytest.approx(1.0)
+    assert not result.pulse_interval
     
     result = parser.parse_args(['replay', '--pulse-interval=3.5', infile])
     assert not result.pulse

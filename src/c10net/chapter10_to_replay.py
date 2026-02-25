@@ -17,9 +17,11 @@ def run_task(cli_args):
 
     setup_pulser = None
     use_pulse = False
-    if hasattr(cli_args, 'pulse_interval'):
+    pulse_interval = 1.0
+    if cli_args.pulse or cli_args.pulse_interval:
         use_pulse = True
-        pulse_interval = cli_args.pulse_interval
+        if (cli_args.pulse_interval):
+            pulse_interval = cli_args.pulse_interval
     
     pc10._set_filter_parameters(
         cli_args.channel_ids,
