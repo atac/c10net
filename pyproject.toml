@@ -37,6 +37,7 @@ test = [
     "pytest>=9.0.2",
 ]
 dev = [
+    "pdm_backend>=2.4.7",
 ]
 all = [
     "c10net[test]",
