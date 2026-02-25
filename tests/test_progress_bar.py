@@ -1,10 +1,5 @@
-import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src"))
-
-import c10net.functions.progress_bar as pb
+from c10net.functions import progress_bar as pb
 
 def test_progress_bar_prints(capsys):
     pb.set_bounds(0.0, 100.0)

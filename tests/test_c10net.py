@@ -1,11 +1,5 @@
-import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src" / "c10net"))
-sys.path.insert(0, str(ROOT / "src"))
-
-import c10net.c10net as c10net
+from c10net import c10net
 
 def test_get_default_out_filepath():
     infile = 'C:\\data\\test.txt'

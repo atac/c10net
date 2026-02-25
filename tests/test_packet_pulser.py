@@ -1,10 +1,5 @@
-import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src"))
-
-import c10net.functions.packet_pulser as pp
+from c10net.functions import packet_pulser as pp
 
 
 def test_packet_pulser_interval(monkeypatch):

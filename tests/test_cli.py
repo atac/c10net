@@ -1,13 +1,8 @@
-import sys
-from pathlib import Path
 
 import pytest
 from argparse import ArgumentTypeError
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src"))
-
-import c10net.cli as cli
+from c10net import cli
 
 
 def test_bad_command_fails():

@@ -1,8 +1,3 @@
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "src"))
 
 from c10net.tasks import parse_chapter10 as pc
 

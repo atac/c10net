@@ -41,3 +41,6 @@ c10net = "c10net:__main__"
 requires = ["pdm-backend >= 2.4.0"]
 build-backend = "pdm.backend"
 
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
+testpaths = ["tests"]
