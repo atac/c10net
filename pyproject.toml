@@ -7,7 +7,7 @@ authors = [
 description = ""
 readme = "README.md"
 requires-python = ">=3.9"
-license = ""
+license = "BSD-3-Clause"
 license-files = ["LICEN[CS]E*"]
 
 dependencies = [
