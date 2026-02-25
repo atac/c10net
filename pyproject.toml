@@ -35,7 +35,7 @@ Homepage = "https://github.com/atac/c10net"
 Issues = "https://github.com/atac/c10net/issues"
 
 [project.scripts]
-c10net = "c10net:main"
+c10net = "c10net:__main__"
 
 [build-system]
 requires = ["pdm-backend >= 2.4.0"]

@@ -27,7 +27,7 @@ should_terminate = Event()
 should_finish = False
 
 
-def main():
+def cli_entry():
     args = cli.get_cli_parser().parse_args(sys.argv[1:])
     
     #print(args)
@@ -158,7 +158,3 @@ def _get_default_pcap_out_filepath_from_infile(in_pathname):
     result = inpath.with_suffix('.pcap')
     return str(result)
 
-
-
-if __name__ == "__main__":
-    main()
