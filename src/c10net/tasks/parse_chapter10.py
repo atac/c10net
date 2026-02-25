@@ -2,7 +2,9 @@
 Read packets from a Chapter 10 file, apply optional filters, and pass them to a provided data sink function.
 """
 
+from collections.abc import Callable
 from threading import Event
+
 from chapter10 import C10, packet
 
 __all__ = ['parse_file', 'terminate']
@@ -18,7 +20,7 @@ def parse_file(
         channel_ids_filter : list, 
         channel_types_filter : list, 
         infile : str, 
-        data_sink_func : function
+        data_sink_func : Callable
         ):
     """Main entry point for parsing a Chapter 10 file.
     

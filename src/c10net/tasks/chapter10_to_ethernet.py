@@ -3,6 +3,7 @@ Takes parsed Chapter 10 packets, generates appropriate UDP transfer headers,
 and writes them toa PCAP file.
 """
 
+from collections.abc import Callable
 from threading import Event
 
 from tasks.data_pipe import DataPipe
@@ -14,7 +15,7 @@ terminate = Event()
 finish = Event()
 _pipe = DataPipe(terminate)
 
-def build_ethernet_packets(cli_args, data_sink_func : function):
+def build_ethernet_packets(cli_args, data_sink_func : Callable):
     """Continuously poll the DataPipe for Chapter 10 packets, generate 
     Ethernet packets, and pass to the provided data sink function."""
     global terminate, _pipe
