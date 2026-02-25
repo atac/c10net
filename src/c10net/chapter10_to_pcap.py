@@ -3,11 +3,11 @@ import os
 
 from chapter10 import C10
 
-import tasks.parse_chapter10 as pc10
-import tasks.write_to_pcap as w2pcap
+from .tasks import parse_chapter10 as pc10
+from .tasks import write_to_pcap as w2pcap
 
-import functions.ethernet_packet_generator as ethernet_gen
-import functions.progress_bar as bar
+from .functions import ethernet_packet_generator as ethernet_gen
+from .functions import progress_bar as bar
 
 
 def run_task(cli_args):

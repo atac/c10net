@@ -3,12 +3,12 @@ import os
 
 from chapter10 import C10, packet
 
-import tasks.parse_chapter10 as pc10
-import tasks.udp_replay as replay
+from .tasks import parse_chapter10 as pc10
+from .tasks import udp_replay as replay
 
-import functions.ethernet_packet_generator as ethernet_gen
-import functions.progress_bar as bar
-import functions.packet_pulser as pulser
+from .functions import ethernet_packet_generator as ethernet_gen
+from .functions import progress_bar as bar
+from .functions import packet_pulser as pulser
 
 
 

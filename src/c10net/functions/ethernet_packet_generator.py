@@ -1,7 +1,7 @@
 from datetime import *
 
-from functions.transfer_header_generator import UdpTransferHeaderGenerator
-from functions.udp_generator import UdpGenerator
+from .transfer_header_generator import UdpTransferHeaderGenerator
+from .udp_generator import UdpGenerator
 
 
 class EthernetGenerator:

@@ -7,7 +7,7 @@ from threading import Event
 
 from scapy.all import PcapWriter
 
-from tasks.data_pipe import DataPipe
+from .data_pipe import DataPipe
 
 __all__ = ['write_packets_to_pcap', 'deposit_ethernet_packets', 'terminate']
 
