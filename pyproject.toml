@@ -36,6 +36,12 @@ dependencies = [
 test = [
     "pytest>=9.0.2",
 ]
+dev = [
+]
+all = [
+    "c10net[test]",
+    "c10net[dev]",
+]
 
 [project.urls]
 Homepage = "https://github.com/atac/c10net"
