@@ -10,13 +10,12 @@ from pathlib import Path
 
 from pytimedinput import timedKey
 
-import cli
-import tasks.parse_chapter10 as parse_ch10
-import tasks.chapter10_to_ethernet as ch10_to_eth
-import tasks.write_to_pcap as write_to_pcap
-
-import chapter10_to_pcap
-import chapter10_to_replay
+from . import cli
+from . import chapter10_to_pcap
+from . import chapter10_to_replay
+from .tasks import parse_chapter10 as parse_ch10
+from .tasks import chapter10_to_ethernet as ch10_to_eth
+from .tasks import write_to_pcap as write_to_pcap
 
 _source_thread = None # Reference to the source thread to determine finished condition
 _threads = []  # List to keep track of threads for cleanup

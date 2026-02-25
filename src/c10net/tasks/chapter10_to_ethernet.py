@@ -6,8 +6,8 @@ and writes them toa PCAP file.
 from collections.abc import Callable
 from threading import Event
 
-from tasks.data_pipe import DataPipe
-from functions.ethernet_packet_generator import EthernetGenerator
+from .tasks.data_pipe import DataPipe
+from .functions.ethernet_packet_generator import EthernetGenerator
 
 __all__ = ['build_ethernet_packets', 'deposit_chapter10_packets', 'terminate', 'finish']
 
