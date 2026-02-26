@@ -38,7 +38,7 @@ def cli_entry():
             args.outfile = _get_default_pcap_out_filepath_from_infile(args.in_pathname)
         stage_capture_pcap(args)
     else:
-        print("No valid command provided. Use -h for help.")
+        print("No command given. Use -h for help.")
         sys.exit(1)
 
     run()
