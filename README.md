@@ -11,25 +11,26 @@
 
 ## Installation
 
-Install from PyPI:
+### Install utility from PyPI:
 
 ```bash
 pip install c10net
 ```
 
-Install optional dependencies:
-
-- Test dependencies:
-  ```bash
-  pip install c10net[test]
-  ```
-- Development dependencies:
-  ```bash
-  pip install c10net[dev]
-  ```
 
 **Note:** `c10net` uses libpcap for pcap packet generation.  
 On Windows, install [Npcap](https://nmap.org/npcap/) and ensure it is available to your system.
+
+### Install for developers (Windows):
+
+```
+git clone https://github.com/atac/c10net
+py -m venv .venv
+.\.venv\Scripts\activate
+pip install -e .[all]
+```
+
+The `[all]` group installs the `[test]` and `[dev]` dependency groups.
 
 ## Usage
 
@@ -80,7 +81,7 @@ c10net replay input.ch10 --pulse --ip 192.168.1.10 --port 49152
 
 ## Testing
 
-Run the test suite with `pytest` (after installing the `test` optional dependency group):
+Run the test suite with `pytest` (after installing the optional `[test]` dependency group):
 
 ```bash
 pytest -q
