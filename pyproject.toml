@@ -12,7 +12,6 @@ classifiers = [
     "Topic :: System :: Networking",
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
