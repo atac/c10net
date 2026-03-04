@@ -17,7 +17,7 @@ def replay_packet_with_timestamp(ethernet_packet):
 
     delay = file_offset - real_offset
 
-    if (delay >= 0.0):
+    if (delay > 0.0):
         # Wait for the calculated delay (relative to the previous packet)
         time.sleep(float(delay))
 

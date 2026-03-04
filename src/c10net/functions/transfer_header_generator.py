@@ -18,7 +18,7 @@ class UdpTransferHeaderGenerator():
         self._seq_count = {}
         self._udp_sequence = 0x0
         self.MAX_BYTES_PER_MESSAGE = 32726
-        self.MAX_MSG_SIZE = 1472
+        self.MAX_MSG_SIZE = 1460
 
     def generate_transfer_headers(self, channel_id: int, packet_size: int):
         """
