@@ -1,6 +1,6 @@
 [project]
 name = "c10net"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
     { name="Stephen Frees", email="sfrees@avtest.com" }
 ]
