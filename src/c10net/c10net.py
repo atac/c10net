@@ -6,21 +6,26 @@ This module manages CLI arguments to coordinate module initialization.
 
 import sys
 from threading import Thread, Event
-from pathlib import Path
 
 from pytimedinput import timedKey
 
 from . import cli
 from . import chapter10_to_pcap
 from . import chapter10_to_replay
-from .tasks import parse_chapter10 as parse_ch10
-from .tasks import chapter10_to_ethernet as ch10_to_eth
-from .tasks import write_to_pcap as write_to_pcap
+# from .tasks import parse_chapter10 as parse_ch10
+# from .tasks import chapter10_to_ethernet as ch10_to_eth
+# from .tasks import write_to_pcap as write_to_pcap
 
-_source_thread = None # Reference to the source thread to determine finished condition
-_threads = []  # List to keep track of threads for cleanup
-_terminate_events = []  # List to keep track of termination events for killing threads
-_finish_events = [] # List to keep track of finish events for clean shutdown of threads
+from .tasks.worker import WorkerConfigError
+from .tasks.task import Task
+from .tasks.task_convert_pcap import ConvertPcap
+
+_task = None # staging for Task object to be run
+
+#_source_thread = None # Reference to the source thread to determine finished condition
+#_threads = []  # List to keep track of threads for cleanup
+#_terminate_events = []  # List to keep track of termination events for killing threads
+#_finish_events = [] # List to keep track of finish events for clean shutdown of threads
 
 should_terminate = Event()
 should_finish = False
@@ -34,29 +39,23 @@ def cli_entry():
     if (args.command == cli.command_replay):
         stage_replay(args)
     elif (args.command == cli.command_convert_pcap):
-        if not args.outfile:
-            args.outfile = _get_default_pcap_out_filepath_from_infile(args.in_pathname)
-        stage_capture_pcap(args)
+        stage_convert_pcap(args)
     else:
         print("No command given. Use -h for help.")
         sys.exit(1)
 
     run()
 
-    global should_terminate
-    if (should_terminate.is_set()):
-        terminate_all_threads()
+    # global should_terminate
+    # if (should_terminate.is_set()):
+    #     terminate_all_threads()
         
-    for thread in _threads:
-        thread.join()  # Wait for all threads to finish
+    # for thread in _threads:
+    #     thread.join()  # Wait for all threads to finish
 
 
 def run():
-    global _threads
-
-    for thread in _threads:
-        thread.start()
-
+    _task.start()
     wait_for_keypress_with_confirmation()
 
 def wait_for_keypress_with_confirmation(prompt_key="Esc", confirm_prompt="Are you sure? (y/n): "):
@@ -97,38 +96,14 @@ def terminate_all_threads():
 
 
 
-def stage_capture_pcap(cli_args):
-    #if (cli_args.parallel): # TODO: test this process again
-    if (False):
-        _threads.append(Thread(
-            target=parse_ch10.parse_file,
-            args=(
-                cli_args.channel_ids,
-                cli_args.channel_types,
-                cli_args.in_pathname,
-                ch10_to_eth.deposit_chapter10_packets
-            )))
-        _threads.append(Thread(
-            target=ch10_to_eth.build_ethernet_packets,
-            args=(cli_args, write_to_pcap.deposit_ethernet_packets)
-            ))
-        _threads.append(Thread(
-            target=write_to_pcap.write_packets_to_pcap,
-            args=(cli_args.outfile,)
-            ))
+def stage_convert_pcap(cli_args):
+    global _task
 
-        _terminate_events.append(parse_ch10.terminate)
-        _terminate_events.append(ch10_to_eth.terminate)
-        _terminate_events.append(write_to_pcap.terminate)
-
-        _finish_events.append(ch10_to_eth.finish)
-        _finish_events.append(write_to_pcap.finish)
-
-        global _source_thread
-        _source_thread = _threads[0]
-    else:
-        chapter10_to_pcap.run_task(cli_args)
-        sys.exit(0)
+    try:
+        _task = ConvertPcap(cli_args)
+    except WorkerConfigError as err:
+        err.add_note("Error in convert_pcap")
+        raise err
     
 
 
@@ -151,9 +126,4 @@ def stage_replay(cli_args):
         chapter10_to_replay.run_task(cli_args)
         sys.exit(0)
 
-
-def _get_default_pcap_out_filepath_from_infile(in_pathname):
-    inpath = Path(in_pathname)
-    result = inpath.with_suffix('.pcap')
-    return str(result)
 
