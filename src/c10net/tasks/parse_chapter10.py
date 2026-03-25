@@ -1,88 +1,72 @@
 """
-Read packets from a Chapter 10 file, apply optional filters, and pass them to a provided data sink function.
+Read packets from a Chapter 10 file, apply optional filters, and pass
+them to the internal DataPipe
 """
-
 from collections.abc import Callable
-from threading import Event
 
-from chapter10 import C10, packet
+from chapter10 import C10, Packet
 
-__all__ = ['parse_file', 'terminate']
-
-_channel_types = []
-_channel_ids = []
-
-_pass_setup_packet = False
-
-terminate = Event()
-
-def parse_file(
-        channel_ids_filter : list, 
-        channel_types_filter : list, 
-        infile : str, 
-        data_sink_func : Callable
-        ):
-    """Main entry point for parsing a Chapter 10 file.
-    
-    :param args: The argparse.Namespace object containing CLI arguments.
-    """
-    _set_filter_parameters(channel_ids_filter, channel_types_filter)
-    _read_packets(infile, data_sink_func)
+from .stage import Stage
 
 
-def _set_filter_parameters(ids, types, pass_setup_packet = False):
-    """
-    Set the filter parameters for channel IDs and types. These parameters will be used to determine which packets to process.
-    
-    :param ids: List of channel IDs to include in processing.
-    :param types: List of channel types to include in processing.
-    :param pass_setup_packet: Set True to allow the setup packet (TMATS) to always pass the filter.
-    """
-    global _channel_types, _channel_ids, _pass_setup_packet
+class ParseChapter10(Stage):
 
-    _channel_types.clear()
-    _channel_ids.clear()
+    #__all__ = ['parse_file', 'terminate']
 
-    if ids:
-        _channel_ids.extend(ids)
-    
-    if types:
-        _channel_types.extend(types)
+    def __init__(
+            self, 
+            infile : str, 
+            channel_ids : list = None,
+            channel_types : list = None,
+            pass_setup_packet : bool = False,
+            sink : Callable = None
+            ):
+        '''
+        Initializer for the ParseChapter10 stage.
 
-    if (type(_channel_types) == type(types)):
-        _channel_types = types
-    
-    _pass_setup_packet = pass_setup_packet
-    
-    
-def _read_packets(infile, sink):
-    global terminate
-    
-    for packet in C10(infile):
+        :param infile: Pathname for the input Chapter 10 file
+        :param channel_ids: List of channel IDs to process (empty or None to allow all)
+        :param channel_types: List of channel types to process (empty or None to allow all)
+        :param pass_setup_packet: When set, allows the setup packet to pass the filter
+        :param sink: Callable deposit method of a DataPipe
+        '''
+        super().__init__(sink)
         
-        if terminate.is_set():
-            # perform any per-thread cleanup here if needed
-            break
+        self._infile = infile
+        self._channel_types = channel_types
+        self._channel_ids = channel_ids
+        self._pass_setup_packet = pass_setup_packet
 
-        if (_passes_filter(packet.channel_id, packet.data_type)):
-            sink([packet])
-        else:
-            continue
+    def start(self):
+        self._read_packets(self._infile)
 
+    def _read_packets(self, infile):
+        """Iterates through packets of a Chapter 10 file, passing them to the pipe."""
+        for packet in C10(infile):
+            
+            if self._state.terminate.is_set() or self._state.finish.is_set():
+                # No cleanup needed
+                break
 
-def _passes_filter(id, type):
-    """Returns False if id or type are not in their respective [non-empty] filter lists."""
-    global _channel_types, _channel_ids, _pass_setup_packet
+            self._process(packet)
+    
+    def _process(self, packet : Packet):
+        if (self._passes_filter(packet.channel_id, packet.data_type)):
+            self._deposit([packet])
 
-    if (_pass_setup_packet and id == 0 and type == 1):
+    def _passes_filter(self, id, type):
+        """Returns False if id or type are not in their respective [non-empty] filter lists."""
+        ids = self._channel_ids
+        types = self._channel_types
+
+        if (self._pass_setup_packet and id == 0 and type == 1):
+            return True
+
+        if (ids and len(ids) > 0 and id not in ids):
+            return False
+        
+        if (types and len(types) > 0 and type not in types):
+            return False
+        
         return True
-
-    if (len(_channel_ids) > 0 and id not in _channel_ids):
-        return False
-    
-    if (len(_channel_types) > 0 and type not in _channel_types):
-        return False
-    
-    return True
-
 

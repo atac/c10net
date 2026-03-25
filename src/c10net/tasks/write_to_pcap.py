@@ -3,35 +3,34 @@ Polls the DataPipe for Ethernet packets and writes them to a PCAP file using
 Scapy's PcapWriter.
 """
 
+from collections.abc import Callable
 from threading import Event
 
 from scapy.all import PcapWriter
 
-from .data_pipe import DataPipe
+from .stage import Stage
 
-__all__ = ['write_packets_to_pcap', 'deposit_ethernet_packets', 'terminate']
+class WritePcap(Stage):
+    def __init__(self, out_pathname : str):
+        super().__init__(sink=None)
+        self._writer = PcapWriter(out_pathname, append=False)
 
-finish = Event()
-terminate = Event()
-_pipe = DataPipe(terminate)
+    def start(self):
+        while not self._state.terminate.is_set():
+            if (self._state.finish.is_set() and self._pipe.is_empty()):
+                break
 
-def write_packets_to_pcap(outfile : str):
-    global terminate, _pipe
-    writer = PcapWriter(outfile, append=False)
+            eth_packets = self._pipe.retrieve()
+            self._process()
 
-    while not terminate.is_set():
-        if (finish.is_set() and _pipe.is_empty()):
-            break
-        
-        eth_packets = _pipe.retrieve()
+        self._writer.close()
+    
+    def _process(self, eth_packets : list):
+        self._writer.write(eth_packets)
+        self._writer.flush()
 
-        if writer:
-            writer.write(eth_packets)
-
-        writer.flush()
-
-    writer.close()
-
-def deposit_ethernet_packets(packets):
-    global _pipe
-    _pipe.deposit(packets)
+    def pipe_input(self):
+        return self._pipe.deposit
+    
+    def direct_input(self):
+        return self._process
