@@ -8,7 +8,7 @@ class ProgressBar:
         self._end = end
         self._time_range = end - start
         self._progress = 0.0 # always stored in percent
-        self._precision = 1
+        self._precision = 2
 
     def set_progress_relative(self, progress : float):
         """Set progress with a value within the range of start and end."""
@@ -27,7 +27,7 @@ class ProgressBar:
         """Set progress with a value within the range of 0.0 and 1.0"""
         progress = self._clamp_abs(progress)
 
-        percent = progress * 100.0
+        percent = round(progress * 100.0, self._precision)
 
         if (percent > self._progress):
             self._progress = percent
@@ -67,8 +67,3 @@ class ProgressBar:
         bar += f'| {self._progress}%   '
 
         return bar
-
-    
-def _print_progress():
-    progress_bar = _generate_progress_bar()
-    print('\r' + progress_bar, end='')
