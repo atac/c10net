@@ -14,4 +14,21 @@ class Task(AbstractWorker):
         super().__init__()
 
         self._cli_args = cli_args 
-        self._task_func = None
+        self._start_stage = None
+        self._threads = []
+
+    
+    def _start_threads(self):
+        for thread in self._threads:
+            thread.start()
+    
+    def _join_threads(self):
+        for thread in self._threads:
+            thread.join()
+
+    def _check_thread_is_alive(self):
+        for thread in self._threads:
+            if thread.is_alive():
+                return True
+        
+        return False
