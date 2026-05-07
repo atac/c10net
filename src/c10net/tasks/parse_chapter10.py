@@ -2,6 +2,7 @@
 Read packets from a Chapter 10 file, apply optional filters, and pass
 them to the internal DataPipe
 """
+import os
 from collections.abc import Callable
 
 from chapter10 import C10, Packet
@@ -42,7 +43,13 @@ class ParseChapter10(Stage):
 
     def _read_packets(self, infile):
         """Iterates through packets of a Chapter 10 file, passing them to the pipe."""
+        
+        file_pos = 0.0
+        size = os.path.getsize(infile)
+
         for packet in C10(infile):
+            file_pos += packet.packet_length
+            self._state.set_progress(file_pos / size)
             
             if self._state.terminate.is_set() or self._state.finish.is_set():
                 # No cleanup needed
