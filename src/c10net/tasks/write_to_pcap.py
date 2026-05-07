@@ -21,7 +21,7 @@ class WritePcap(Stage):
                 break
 
             eth_packets = self._pipe.retrieve()
-            self._process()
+            self._process(eth_packets)
 
         self._writer.close()
     
