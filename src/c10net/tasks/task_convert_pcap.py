@@ -1,4 +1,6 @@
+
 from pathlib import Path
+from threading import Thread, Event
 
 from c10net.tasks.task import Task
 from c10net.tasks.worker import WorkerConfigError
@@ -23,15 +25,28 @@ class ConvertPcap(Task):
 
 
     def start(self):
-        if self._task_func is None:
+        if self._start_stage is None:
             raise WorkerConfigError("Worker not configured")
-        self._task_func()
+        
+        # start _threads and update progress while any alive and not terminate/finish
+
+        self._start_threads()
+
+        while (self._check_thread_is_alive()
+               and not self._state.terminate.is_set()
+               and not self._state.finish.is_set()
+               ):
+            self._state.set_progress(self._start_stage.progress())
+        
+        self._join_threads()
+
 
     def _init(self):
-        if ('outfile' not in self._cli_args
+        if (self._cli_args['outfile'] is None
             or self._cli_args['outfile'] == ""):
-            pn = self._derive_outfile(self._cli_args['in_pathname'])
-            self._cli_args['outfile'] = pn
+            pathname = self._derive_outfile(self._cli_args['in_pathname'])
+            self._cli_args['outfile'] = pathname
+
 
     def _setup_linear(self):
         write = WritePcap(self._cli_args['outfile'])
@@ -43,42 +58,28 @@ class ConvertPcap(Task):
             sink=convert.direct_input()
         )
 
-        self._task_func = parse.start
+        self._start_stage = parse
         self._stages.extend([parse, convert, write])
+        self._threads.append(Thread(target=self._start_stage.start))
+        
 
     def _setup_parallel(self):
-        pass
-        # TODO: instantiate stages with the correct sinks
-        # TODO: 
-        # self._subtasks.append()
+        write = WritePcap(self._cli_args['outfile'])
+        convert = Chapter10ToEthernet(self._cli_args, write.pipe_input())
+        parse = ParseChapter10(
+            self._cli_args['in_pathname'],
+            self._cli_args['channel_ids'],
+            self._cli_args['channel_types'],
+            sink=convert.pipe_input()
+        )
 
-
-        # super().state.threads.append(Thread(
-        #     target=parse_ch10.parse_file,
-        #     args=(
-        #         self.cli_args.channel_ids,
-        #         self.cli_args.channel_types,
-        #         self.cli_args.in_pathname,
-        #         ch10_to_eth.deposit_chapter10_packets
-        #     )))
-        # super().state.threads.append(Thread(
-        #     target=ch10_to_eth.build_ethernet_packets,
-        #     args=(self.cli_args, write_to_pcap.deposit_ethernet_packets)
-        #     ))
-        # super().state.threads.append(Thread(
-        #     target=write_to_pcap.write_packets_to_pcap,
-        #     args=(self.cli_args.outfile,)
-        #     ))
-
-        # _terminate_events.append(parse_ch10.terminate)
-        # _terminate_events.append(ch10_to_eth.terminate)
-        # _terminate_events.append(write_to_pcap.terminate)
-
-        # _finish_events.append(ch10_to_eth.finish)
-        # _finish_events.append(write_to_pcap.finish)
-
-        # global _source_thread
-        # _source_thread = _threads[0]
+        self._start_stage = parse
+        self._stages.extend([parse, convert, write])
+        self._threads.extend([
+            Thread(target=parse.start),
+            Thread(target=convert.start),
+            Thread(target=write.start)
+            ])
 
         
 
@@ -86,3 +87,4 @@ class ConvertPcap(Task):
         inpath = Path(in_pathname)
         result = inpath.with_suffix('.pcap')
         return str(result)
+    
