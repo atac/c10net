@@ -21,7 +21,7 @@ class Chapter10ToEthernet(Stage):
     def start(self):
         self._build_ethernet_packets()
 
-    def build_ethernet_packets(self):
+    def _build_ethernet_packets(self):
         """Continuously poll the DataPipe for Chapter 10 packets, generate 
         Ethernet packets, and pass to the provided data sink function."""
 
