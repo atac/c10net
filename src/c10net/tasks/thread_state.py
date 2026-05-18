@@ -4,7 +4,7 @@ from threading import Event, Lock
 class ThreadState:
     def __init__(self):
         self.terminate = Event()
-        self.finish = Event()
+        #self.finish = Event()
         self._progress = 0.0
         self._progress_lock = Lock()
         pass

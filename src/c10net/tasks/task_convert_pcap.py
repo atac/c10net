@@ -28,13 +28,12 @@ class ConvertPcap(Task):
         if self._start_stage is None:
             raise WorkerConfigError("Worker not configured")
         
-        # start _threads and update progress while any alive and not terminate/finish
+        # start _threads and update progress while any alive and not terminated
 
         self._start_threads()
 
         while (self._check_thread_is_alive()
                and not self._state.terminate.is_set()
-               and not self._state.finish.is_set()
                ):
             self._state.set_progress(self._start_stage.progress())
         

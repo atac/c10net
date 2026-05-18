@@ -24,11 +24,11 @@ class AbstractWorker(ABC):
         for stage in self._stages:
             stage.terminate()
 
-    def finish(self):
-        """Set the state.finish Event on this and subtasks."""
-        self._state.finish.set()
-        for stage in self._stages:
-            stage.finish()
+    # def finish(self):
+    #     """Set the state.finish Event on this and subtasks."""
+    #     self._state.finish.set()
+    #     if (len(self._stages) > 0):
+    #         self._stages[0].finish()
 
     def progress(self):
         """
