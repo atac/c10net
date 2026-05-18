@@ -9,7 +9,7 @@ deposit to a sink pipe provided at initialization.
 An event passed at initialization is used to check termination conditions
 during deposit and retrieval.
 """
-from queue import Queue, Empty, Full
+from queue import Queue, Empty, Full, ShutDown
 from threading import Event
 
 class DataPipe:
@@ -19,34 +19,75 @@ class DataPipe:
 
         self.terminate = terminate_event
         self._queue = Queue(maxsize=self.MAX_QUEUE_SIZE)
-    
+        
     def deposit(self, data : list):
-        """Called by the instance owner from a function that can be referenced
-        as the sink function for another DataPipe instance."""
+        """
+        Insert data into the queue. The instance owner should make this
+        function reference available to another object to be used as its data
+        sink.
+        """
         for d in data:
-            if not self.terminate.is_set():
-                try:
-                    self._queue.put(d)
-                except Exception:
-                    print("Error depositing data to queue")
-                    self.terminate.set()
+            self._try_deposit(d)
     
     def retrieve(self):
         """Used by the instance owner to retrieve source data from the queue
         for processing."""
+        return self._try_retrieve()
+    
+    def shutdown(self, immediate=False):
+        self._queue.shutdown(immediate)
+
+    def _try_deposit(self, data):
+        """
+        Attempt to deposit data to the queue. 
+
+        If raises ShutDown, throw exception to caller
+        If raises Full, wait increasing timeout up to max timeout
+        Check events between attempts and return on terminate
+        """
+        MAX_TIMEOUT = 1024
+        timeout = 1
+
+        success = False
+
+        while not success and not self.terminate.is_set():
+            try:
+                self._queue.put(data, True, timeout / 1000)
+                success = True
+            except Full:
+                timeout = min(timeout * 2, MAX_TIMEOUT)
+            except ShutDown as ex:
+                ex.add_note("Attempted to deposit to a pipe that has been shut down")
+                raise ex
+                #raise BrokenPipeError("Attempted to deposit to a pipe that has been shut down")
+            except Exception as ex:
+                ex.add_note("Unknown exception occurred during deposit")
+                raise ex
+
+    def _try_retrieve(self):
+        """
+        Attempt to retrieve data from the queue. 
+
+        If raises ShutDown or Empty, return available data or empty list
+        Check events between attempts and return on terminate
+        """
         data = []
-        
-        if not self.terminate.is_set():
-                for i in range(self.RETRIEVAL_SIZE):
-                    try:
-                        data.append(self._queue.get_nowait())
-                    except Empty:
-                        break
-                    except Exception:
-                        print("Error retrieving data from queue")
-                        self.terminate.set()
+
+        while not self.terminate.is_set() and len(data) < self._queue.maxsize:
+            try:
+                data.append(self._queue.get(False))
+            except Empty:
+                break
+            except ShutDown as ex:
+                if (len(data) == 0):
+                    raise ex
+                break
+            except Exception as ex:
+                ex.add_note("Unknown exception occurred during retrieval")
+                raise ex
         
         return data
+
 
     def is_empty(self):
         """Returns True if the queue is empty."""
