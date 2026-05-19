@@ -36,6 +36,13 @@ class AbstractWorker(ABC):
         0.0 and 1.0
         """
         return self._state.get_progress()
+
+    def _debug_stages(self):
+        msg = '[ '
+        for stage in self._stages:
+            msg += f'{stage.__class__.__name__}: {stage._debug_count} '
+        msg += ']'
+        print(msg)
     
 
     @abstractmethod

@@ -41,13 +41,6 @@ class ConvertPcap(Task):
         
         self._join_threads()
 
-    def _debug_stages(self):
-        msg = '[ '
-        for stage in self._stages:
-            msg += f'{stage.__class__.__name__}: {stage._debug_count} '
-        msg += ']'
-        print(msg)
-
 
     def _init(self):
         if (self._cli_args['outfile'] is None
