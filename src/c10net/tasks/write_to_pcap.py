@@ -6,31 +6,32 @@ Scapy's PcapWriter.
 from collections.abc import Callable
 from threading import Event
 
+from queue import ShutDown
+
 from scapy.all import PcapWriter
 
 from .stage import Stage
 
 class WritePcap(Stage):
-    def __init__(self, out_pathname : str):
-        super().__init__(sink=None)
+    def __init__(self, out_pathname : str, source : Callable = None):
+        super().__init__(source=source)
         self._writer = PcapWriter(out_pathname, append=False)
 
     def start(self):
-        while not self._state.terminate.is_set():
-            if (self._state.finish.is_set() and self._pipe.is_empty()):
-                break
+        try:
+            while not self._state.terminate.is_set():
+                eth_packets = self.retrieve()
+                self._process(eth_packets)
+        except ShutDown:
+            pass
 
-            eth_packets = self._pipe.retrieve()
-            self._process(eth_packets)
+        self._pipe.shutdown(immediate=self._state.terminate.is_set())
 
         self._writer.close()
     
     def _process(self, eth_packets : list):
         self._writer.write(eth_packets)
         self._writer.flush()
-
-    def pipe_input(self):
-        return self._pipe.deposit
     
     def direct_input(self):
         return self._process

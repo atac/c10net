@@ -4,6 +4,7 @@ them to the internal DataPipe
 """
 import os
 from collections.abc import Callable
+from queue import ShutDown
 
 from chapter10 import C10, Packet
 
@@ -20,7 +21,7 @@ class ParseChapter10(Stage):
             channel_ids : list = None,
             channel_types : list = None,
             pass_setup_packet : bool = False,
-            sink : Callable = None
+            direct_link : Callable = None
             ):
         '''
         Initializer for the ParseChapter10 stage.
@@ -29,9 +30,9 @@ class ParseChapter10(Stage):
         :param channel_ids: List of channel IDs to process (empty or None to allow all)
         :param channel_types: List of channel types to process (empty or None to allow all)
         :param pass_setup_packet: When set, allows the setup packet to pass the filter
-        :param sink: Callable deposit method of a DataPipe
+        :param pipe_link: A function linking stages in the pipeline
         '''
-        super().__init__(sink)
+        super().__init__(direct_link=direct_link)
         
         self._infile = infile
         self._channel_types = channel_types
@@ -47,19 +48,23 @@ class ParseChapter10(Stage):
         file_pos = 0.0
         size = os.path.getsize(infile)
 
-        for packet in C10(infile):
-            file_pos += packet.packet_length
-            self._state.set_progress(file_pos / size)
-            
-            if self._state.terminate.is_set() or self._state.finish.is_set():
-                # No cleanup needed
-                break
+        try:
+            for packet in C10(infile):
+                file_pos += packet.packet_length
+                self._state.set_progress(file_pos / size)
+                
+                if self._state.terminate.is_set():
+                    break
 
-            self._process(packet)
+                self._process(packet)
+        except ShutDown:
+            pass
+        
+        self._pipe.shutdown(immediate=self._state.terminate.is_set())
     
     def _process(self, packet : Packet):
         if (self._passes_filter(packet.channel_id, packet.data_type)):
-            self._deposit([packet])
+            self.deposit([packet])
 
     def _passes_filter(self, id, type):
         """Returns False if id or type are not in their respective [non-empty] filter lists."""
@@ -77,3 +82,5 @@ class ParseChapter10(Stage):
         
         return True
 
+    def pipe_output(self):
+        return self._pipe.retrieve

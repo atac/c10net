@@ -1,7 +1,6 @@
 
+import sys
 from threading import Thread
-
-import readchar
 
 from c10net.tasks.task import Task
 from c10net.functions.progress_bar import ProgressBar
@@ -23,6 +22,16 @@ class Watchdog():
         thread = Thread(target=self._task.start)
 
         self._enter_run_loop(thread)
+            
+        self.terminate()
+            
+        thread.join(5.0)
+
+        if (not thread.is_alive()):
+            print("\nDone")
+        else:
+            print("\nFailed to terminate task in time. Force quitting.")
+            sys.exit(1)
 
     def terminate(self):
         """
@@ -31,12 +40,12 @@ class Watchdog():
         """
         self._task.terminate()
 
-    def finish(self):
-        """
-        Call finish on the running task. The effect is to finish
-        current data in processing stages and exit.
-        """
-        self._task.finish()
+    # def finish(self):
+    #     """
+    #     Call finish on the running task. The effect is to finish
+    #     current data in processing stages and exit.
+    #     """
+    #     self._task.finish()
 
     def _enter_run_loop(self, thread : Thread):
         thread.start()

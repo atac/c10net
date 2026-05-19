@@ -49,12 +49,12 @@ class ConvertPcap(Task):
 
     def _setup_linear(self):
         write = WritePcap(self._cli_args['outfile'])
-        convert = Chapter10ToEthernet(self._cli_args, write.direct_input())
+        convert = Chapter10ToEthernet(self._cli_args, direct_link=write.direct_input())
         parse = ParseChapter10(
             self._cli_args['in_pathname'],
             self._cli_args['channel_ids'],
             self._cli_args['channel_types'],
-            sink=convert.direct_input()
+            direct_link=convert.direct_input()
         )
 
         self._start_stage = parse
@@ -63,14 +63,13 @@ class ConvertPcap(Task):
         
 
     def _setup_parallel(self):
-        write = WritePcap(self._cli_args['outfile'])
-        convert = Chapter10ToEthernet(self._cli_args, write.pipe_input())
         parse = ParseChapter10(
             self._cli_args['in_pathname'],
             self._cli_args['channel_ids'],
-            self._cli_args['channel_types'],
-            sink=convert.pipe_input()
+            self._cli_args['channel_types']
         )
+        convert = Chapter10ToEthernet(self._cli_args, source=parse.pipe_output())
+        write = WritePcap(self._cli_args['outfile'], source=convert.pipe_output())
 
         self._start_stage = parse
         self._stages.extend([parse, convert, write])
