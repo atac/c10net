@@ -1,10 +1,10 @@
 """
-Class providing structures and functions to manage the throughput of data in 
-a task
+Class providing structures and functions to manage passing data between task
+stages.
 
-A task module should create an instance of this class and use the provided 
-functions to retrieve from the source pipe, process the data, and optionally 
-deposit to a sink pipe provided at initialization.
+A stage should create an instance of this class and use the provided 
+functions to deposit processed data (unless final stage) and shutdown as 
+needed.
 
 An event passed at initialization is used to check termination conditions
 during deposit and retrieval.
@@ -22,16 +22,17 @@ class DataPipe:
         
     def deposit(self, data : list):
         """
-        Insert data into the queue. The instance owner should make this
-        function reference available to another object to be used as its data
-        sink.
+        Insert processed data into the queue.
         """
         for d in data:
             self._try_deposit(d)
     
     def retrieve(self):
-        """Used by the instance owner to retrieve source data from the queue
-        for processing."""
+        """
+        Get any existing data from the queue. The instance owner should make
+        thisfunction reference available to another object to be used as its
+        data source.
+        """
         return self._try_retrieve()
     
     def shutdown(self, immediate=False):
@@ -68,8 +69,9 @@ class DataPipe:
         """
         Attempt to retrieve data from the queue. 
 
-        If raises ShutDown or Empty, return available data or empty list
-        Check events between attempts and return on terminate
+        If raises ShutDown or Empty, return available data or empty list.
+        If ShutDown is raised with no data (closed), throw exception to caller.
+        Check events between attempts and return on terminate.
         """
         data = []
 
@@ -88,7 +90,9 @@ class DataPipe:
         
         return data
 
+    def _debug_get_items_inserted(self):
+        return self._debug_count
 
-    def is_empty(self):
-        """Returns True if the queue is empty."""
-        return self._queue.empty()
+    # def is_empty(self):
+    #     """Returns True if the queue is empty."""
+    #     return self._queue.empty()
