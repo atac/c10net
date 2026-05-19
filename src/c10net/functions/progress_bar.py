@@ -64,6 +64,6 @@ class ProgressBar:
         for i in range(0, bar_size-fraction):
             bar += '-'
 
-        bar += f'| {self._progress}%   '
+        bar += f'| {self._progress:.2f}%   '
 
         return bar
