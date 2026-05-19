@@ -16,6 +16,8 @@ class WritePcap(Stage):
     def __init__(self, out_pathname : str, source : Callable = None):
         super().__init__(source=source)
         self._writer = PcapWriter(out_pathname, append=False)
+        
+        self._debug_count = 0
 
     def start(self):
         try:
@@ -32,6 +34,8 @@ class WritePcap(Stage):
     def _process(self, eth_packets : list):
         self._writer.write(eth_packets)
         self._writer.flush()
+        
+        self._debug_count += len(eth_packets)
     
     def direct_input(self):
         return self._process

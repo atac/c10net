@@ -36,8 +36,17 @@ class ConvertPcap(Task):
                and not self._state.terminate.is_set()
                ):
             self._state.set_progress(self._start_stage.progress())
+
+            #self._debug_stages()
         
         self._join_threads()
+
+    def _debug_stages(self):
+        msg = '[ '
+        for stage in self._stages:
+            msg += f'{stage.__class__.__name__}: {stage._debug_count} '
+        msg += ']'
+        print(msg)
 
 
     def _init(self):

@@ -65,9 +65,11 @@ class Watchdog():
             except Exception as err:
                 print('An unknown error occurred')
                 raise err
-            
+
+
     def _print_output(self):
         print(f'\r{self._get_bar()}    {self._message}', end='')
+        #pass
 
     def _get_bar(self):
         progress = self._task.progress()

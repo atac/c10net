@@ -20,6 +20,8 @@ class Chapter10ToEthernet(Stage):
         self._have_time = False
         self._pre_time_buffer = []
 
+        self._debug_count = 0
+
     def start(self):
         self._build_ethernet_packets()
 
@@ -48,6 +50,7 @@ class Chapter10ToEthernet(Stage):
                     self._have_time = self._handle_pre_time_packet(p, out_data)
             
             self.deposit(out_data)
+            self._debug_count += len(out_data)
 
     def _handle_pre_time_packet(self, packet, out_data):
         """Handle a Chapter 10 packet that does not have an associated timestamp.

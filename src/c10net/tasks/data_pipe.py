@@ -19,6 +19,8 @@ class DataPipe:
 
         self.terminate = terminate_event
         self._queue = Queue(maxsize=self.MAX_QUEUE_SIZE)
+
+        self._debug_count = 0
         
     def deposit(self, data : list):
         """
@@ -26,6 +28,7 @@ class DataPipe:
         """
         for d in data:
             self._try_deposit(d)
+            self._debug_count += 1
     
     def retrieve(self):
         """
