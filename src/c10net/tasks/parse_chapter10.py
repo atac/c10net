@@ -8,6 +8,7 @@ from queue import ShutDown
 
 from chapter10 import C10, Packet
 
+from c10net.functions.packet_pulser import PacketPulser
 from .stage import Stage
 
 
@@ -21,6 +22,7 @@ class ParseChapter10(Stage):
             channel_ids : list = None,
             channel_types : list = None,
             pass_setup_packet : bool = False,
+            pulse_interval : float = 0.0,
             direct_link : Callable = None
             ):
         '''
@@ -30,6 +32,7 @@ class ParseChapter10(Stage):
         :param channel_ids: List of channel IDs to process (empty or None to allow all)
         :param channel_types: List of channel types to process (empty or None to allow all)
         :param pass_setup_packet: When set, allows the setup packet to pass the filter
+        :param pulse_interval: When non-zero, pulses the setup packet at the given interval (in seconds)
         :param pipe_link: A function linking stages in the pipeline
         '''
         super().__init__(direct_link=direct_link)
@@ -38,6 +41,14 @@ class ParseChapter10(Stage):
         self._channel_types = channel_types
         self._channel_ids = channel_ids
         self._pass_setup_packet = pass_setup_packet
+
+        self._pulser = None
+        
+        if (pulse_interval > 0.0):
+            self._pulser = PacketPulser()
+            self._pulser.set_interval(pulse_interval)
+
+        self._debug_count = 0
 
     def start(self):
         self._read_packets(self._infile)
@@ -55,7 +66,7 @@ class ParseChapter10(Stage):
                 
                 if self._state.terminate.is_set():
                     break
-
+                
                 self._process(packet)
         except ShutDown:
             pass
@@ -63,8 +74,22 @@ class ParseChapter10(Stage):
         self._pipe.shutdown(immediate=self._state.terminate.is_set())
     
     def _process(self, packet : Packet):
+        # do pulse processing if pulser is set up
+        if (not self._pulser is None):
+            if (packet.channel_id == 0 and packet.data_type == 0x01):
+                self._pulser.set_packet(packet)
+
+            pulse_packet = self._pulser.check_pulse()
+
+            if (not pulse_packet is None):
+                print(pulse_packet)
+                self.deposit([pulse_packet])
+                self._debug_count += 1
+
         if (self._passes_filter(packet.channel_id, packet.data_type)):
             self.deposit([packet])
+
+        self._debug_count += 1
 
     def _passes_filter(self, id, type):
         """Returns False if id or type are not in their respective [non-empty] filter lists."""
