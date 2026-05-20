@@ -20,6 +20,8 @@ class Watchdog():
             - join all running threads
         """
         thread = Thread(target=self._task.start)
+        thread.start()
+        print('Task started...')
 
         self._enter_run_loop(thread)
             
@@ -48,9 +50,6 @@ class Watchdog():
     #     self._task.finish()
 
     def _enter_run_loop(self, thread : Thread):
-        thread.start()
-        print('Task started...')
-
         reenter = True
 
         while reenter: # reentry loop
@@ -69,7 +68,6 @@ class Watchdog():
 
     def _print_output(self):
         print(f'\r{self._get_bar()}    {self._message}', end='')
-        #pass
 
     def _get_bar(self):
         progress = self._task.progress()
