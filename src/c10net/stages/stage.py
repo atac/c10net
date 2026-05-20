@@ -2,7 +2,7 @@
 from collections.abc import Callable, abstractmethod
 
 from c10net.tasks.worker import AbstractWorker
-from c10net.tasks.data_pipe import DataPipe
+from c10net.stages.data_pipe import DataPipe
 
 class StagePipeError(Exception):
     def __init__(self, msg : str):

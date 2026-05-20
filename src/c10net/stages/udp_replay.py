@@ -25,7 +25,6 @@ class UdpReplay(Stage):
         self._pipe.shutdown(immediate=self._state.terminate.is_set())
 
     def _replay_packets(self, eth_packets : list):
-        print (len(eth_packets))
         for packet in eth_packets:
             self._replay(packet)
 
@@ -34,19 +33,18 @@ class UdpReplay(Stage):
 
     def _replay(self, ethernet_packet):
         # Calculate the time delay from the previous packet's timestamp to the current packet's timestamp
-        #if (not self._first_real_time or not self._first_file_time):
-        #    self._first_real_time = time.time()
-        #    self._first_file_time = ethernet_packet.time
+        if (not self._first_real_time or not self._first_file_time):
+           self._first_real_time = time.time()
+           self._first_file_time = ethernet_packet.time
 
-        #real_offset = time.time() - self._first_real_time
-        #file_offset = ethernet_packet.time - self._first_file_time
+        real_offset = time.time() - self._first_real_time
+        file_offset = ethernet_packet.time - self._first_file_time
 
-        #delay = file_offset - real_offset
+        delay = file_offset - real_offset
 
-        #if (delay >= 0.0):
+        if (delay >= 0.0):
             # Wait for the calculated delay (relative to the previous packet)
-            #time.sleep(float(delay))
-        #    pass
+            time.sleep(float(delay))
 
         # Send the packet over the network
         send(ethernet_packet.payload, verbose=False)

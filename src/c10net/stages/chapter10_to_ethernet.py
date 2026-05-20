@@ -8,7 +8,7 @@ from collections.abc import Callable
 from queue import ShutDown
 
 from c10net.functions.ethernet_packet_generator import EthernetGenerator
-from c10net.tasks.stage import Stage
+from c10net.stages.stage import Stage
 
 #__all__ = ['build_ethernet_packets', 'deposit_chapter10_packets', 'terminate', 'finish']
 
