@@ -42,6 +42,7 @@ test = [
 ]
 dev = [
     "pdm_backend>=2.4.7",
+    "twine>=6.2.0",
 ]
 all = [
     "c10net[test]",
