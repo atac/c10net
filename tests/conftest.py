@@ -6,7 +6,7 @@ from c10net.tasks.task import Task
 # stubbed class inheriting Task
 class TaskStub(Task):
     def __init__(self, wait_event : Event = None):
-        super().__init__({})
+        super().__init__({"parallel" : False})
         self.wait_event = wait_event
 
     def start(self):
@@ -15,12 +15,17 @@ class TaskStub(Task):
             while (
                 not self.wait_event.is_set() 
                 and not self._state.terminate.is_set()
-                and not self._state.finish.is_set()
                 ):
                 self._state.set_progress(0.421)
 
     def interrupt():
         raise KeyboardInterrupt
+    
+    def _setup_linear(self):
+        pass
+
+    def _setup_parallel(self):
+        pass
 
 
 # factory fixture to allow parameterized construction of TaskStub
