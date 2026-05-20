@@ -67,7 +67,12 @@ class Watchdog():
 
 
     def _print_output(self):
-        print(f'\r{self._get_bar()}    {self._message}', end='')
+        debug = False
+
+        if (debug):
+            print(f'\r{self._task._debug_stages()}  {self._message}', end='')
+        else:
+            print(f'\r{self._get_bar()}    {self._message}', end='')
 
     def _get_bar(self):
         progress = self._task.progress()

@@ -42,7 +42,7 @@ class AbstractWorker(ABC):
         for stage in self._stages:
             msg += f'{stage.__class__.__name__}: {stage._debug_count} '
         msg += ']'
-        print(msg)
+        return msg
     
 
     @abstractmethod
