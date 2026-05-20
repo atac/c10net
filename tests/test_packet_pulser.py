@@ -12,8 +12,9 @@ def test_packet_pulser_interval(monkeypatch):
     monkeypatch.setattr(pp.time, 'time', fake_time)
 
     dummy = object()
-    p = pp.PacketPulser(dummy)
+    p = pp.PacketPulser()
     p.set_interval(2.0)
+    p.set_packet(dummy)
 
     # Now call check_pulse() — fake_time returns 101.0 now, interval should not pass
     pkt = p.check_pulse()
