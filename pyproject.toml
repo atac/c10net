@@ -1,6 +1,6 @@
 [project]
 name = "c10net"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
     { name="Stephen Frees", email="sfrees@avtest.com" }
 ]
@@ -37,9 +37,12 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest>=9.0.2",
+    "pytest-mock>=3.15.1",
+    "pytest-cov>=7.1.0",
 ]
 dev = [
     "pdm_backend>=2.4.7",
+    "twine>=6.2.0",
 ]
 all = [
     "c10net[test]",
@@ -53,7 +56,7 @@ Repository = "https://github.com/atac/c10net.git"
 Documentation = "https://github.com/atac/c10net/blob/main/README.md"
 
 [project.scripts]
-c10net = "c10net:__main__"
+c10net = "c10net.__main__:main"
 
 [build-system]
 requires = ["pdm-backend >= 2.4.0"]

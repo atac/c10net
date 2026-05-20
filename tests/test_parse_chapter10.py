@@ -1,29 +1,32 @@
 
-from c10net.tasks import parse_chapter10 as pc
+from c10net.stages.parse_chapter10 import ParseChapter10
 
 
-def test_set_filters():
+def test_set_filters_none():
     # set filters empty -> passes everything
-    pc._set_filter_parameters([], [])
+    pc = ParseChapter10("test", [], [])
     assert pc._passes_filter(1, 2)
 
+def test_set_filters_ids():
     # restrict ids
-    pc._set_filter_parameters([3], [])
+    pc = ParseChapter10("test", [3], [])
     assert not pc._passes_filter(1, 2)
     assert pc._passes_filter(3, 2)
 
+def test_set_filters_types():
     # restrict types
-    pc._set_filter_parameters([], [7])
+    pc = ParseChapter10("test", [], [7])
     assert not pc._passes_filter(3, 2)
     assert pc._passes_filter(3, 7)
 
+def test_set_filters_ids_and_types():
     # restrict both
-    pc._set_filter_parameters([3], [7])
+    pc = ParseChapter10("test", [3], [7])
     assert not pc._passes_filter(3, 2)
     assert not pc._passes_filter(1, 7)
     assert pc._passes_filter(3, 7)
 
 def test_pass_setup_packet():
     # pass setup packet when flag set
-    pc._set_filter_parameters([3], [7], pass_setup_packet=True)
+    pc = ParseChapter10("test", [3], [7], pass_setup_packet=True)
     assert pc._passes_filter(0, 1)

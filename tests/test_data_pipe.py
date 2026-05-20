@@ -1,7 +1,9 @@
 
+import pytest
+
 from threading import Event
 
-from c10net.tasks.data_pipe import DataPipe
+from c10net.stages.data_pipe import DataPipe, Empty, ShutDown
 
 
 def test_deposit_and_retrieve():
@@ -11,7 +13,9 @@ def test_deposit_and_retrieve():
     dp.deposit([1, 2, 3])
     out = dp.retrieve()
     assert out == [1, 2, 3]
-    assert dp.is_empty()
+
+    out = dp.retrieve()
+    assert len(out) == 0
 
 
 def test_deposit_respects_terminate():
