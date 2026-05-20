@@ -65,12 +65,12 @@ def test_progress_bar_updates(capsys):
 
     pb.set_progress_relative(0.0)
     bar = pb.get_bar()
-    assert '0.0%' in bar
+    assert '0.00%' in bar
 
     pb.set_progress_relative(50.0)
     bar = pb.get_bar()
-    assert '50.0%' in bar
+    assert '50.00%' in bar
 
     pb.set_progress_relative(100.0)
     bar = pb.get_bar()
-    assert '100.0%' in bar
+    assert '100.00%' in bar

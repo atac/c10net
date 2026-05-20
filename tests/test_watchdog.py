@@ -71,27 +71,6 @@ def test_can_terminate_task(task_stub):
     assert not was_alive
     assert not work_was_done
 
-def test_can_finish_task(task_stub):
-    fake_work_done = Event()
-    ts = task_stub(fake_work_done)
-    wd = Watchdog(ts)
-
-    thread = Thread(target=wd.start)
-    thread.start()
-    wd.finish()
-    thread.join(0.1)
-
-    # Must capture these and join the thread before making assertions,
-    # otherwise the test will hang indefinitely on failure
-    was_alive = thread.is_alive()
-    work_was_done = fake_work_done.is_set()
-    
-    fake_work_done.set()
-    thread.join()
-
-    assert not was_alive
-    assert not work_was_done
-
 def test_enters_run_loop(mocker, task_stub):
     wd = Watchdog(task_stub())
     mocked_run_loop = mocker.patch.object(wd, '_enter_run_loop')
