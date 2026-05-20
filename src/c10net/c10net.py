@@ -13,7 +13,7 @@ from . import cli
 from .tasks.worker import WorkerConfigError
 from .tasks.task_convert_pcap import ConvertPcap
 from .tasks.task_replay import Replay
-from .tasks.watchdog import Watchdog
+from .watchdog import Watchdog
 
 _task = None # staging for Task object to be run
 

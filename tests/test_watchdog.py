@@ -1,7 +1,7 @@
 import pytest
 from threading import Event, Thread
 
-from c10net.tasks.watchdog import Watchdog
+from c10net.watchdog import Watchdog
 from c10net.tasks.task import Task
 
 

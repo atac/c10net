@@ -19,7 +19,7 @@ def test_stage_convert_pcap_initializes_task(mocker):
     assert isinstance(c10net._task, ConvertPcap)
 
 def test_run_starts_watchdog(mocker, task_stub):
-    mocked_start = mocker.patch('c10net.tasks.watchdog.Watchdog.start')
+    mocked_start = mocker.patch('c10net.watchdog.Watchdog.start')
     c10net._task = task_stub()
     c10net.run()
     mocked_start.assert_called_once()

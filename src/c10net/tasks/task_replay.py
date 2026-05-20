@@ -3,9 +3,9 @@ from threading import Thread
 
 from c10net.tasks.task import Task
 
-from c10net.tasks.parse_chapter10 import ParseChapter10
-from c10net.tasks.chapter10_to_ethernet import Chapter10ToEthernet
-from c10net.tasks.udp_replay import UdpReplay
+from c10net.stages.parse_chapter10 import ParseChapter10
+from c10net.stages.chapter10_to_ethernet import Chapter10ToEthernet
+from c10net.stages.udp_replay import UdpReplay
 
 class Replay(Task):
     def __init__(self, cli_args : dict):

@@ -3,7 +3,7 @@ import pytest
 
 from threading import Event
 
-from c10net.tasks.data_pipe import DataPipe, Empty, ShutDown
+from c10net.stages.data_pipe import DataPipe, Empty, ShutDown
 
 
 def test_deposit_and_retrieve():

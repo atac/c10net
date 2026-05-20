@@ -1,5 +1,5 @@
 
-from c10net.tasks.parse_chapter10 import ParseChapter10
+from c10net.stages.parse_chapter10 import ParseChapter10
 
 
 def test_set_filters_none():
