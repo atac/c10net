@@ -1,9 +1,8 @@
 
 from pathlib import Path
-from threading import Thread, Event
+from threading import Thread
 
 from c10net.tasks.task import Task
-from c10net.tasks.worker import WorkerConfigError
 
 from c10net.tasks.parse_chapter10 import ParseChapter10
 from c10net.tasks.chapter10_to_ethernet import Chapter10ToEthernet
@@ -12,34 +11,6 @@ from c10net.tasks.write_to_pcap import WritePcap
 class ConvertPcap(Task):
     def __init__(self, cli_args : dict):
         super().__init__(cli_args)
-
-        try:
-            self._init()
-
-            if self._cli_args['parallel']:
-                self._setup_parallel()
-            else:
-                self._setup_linear()
-        except KeyError as err:
-            raise WorkerConfigError("Required parameters not found") from err
-
-
-    def start(self):
-        if self._start_stage is None:
-            raise WorkerConfigError("Worker not configured")
-        
-        # start _threads and update progress while any alive and not terminated
-
-        self._start_threads()
-
-        while (self._check_thread_is_alive()
-               and not self._state.terminate.is_set()
-               ):
-            self._state.set_progress(self._start_stage.progress())
-
-            #self._debug_stages()
-        
-        self._join_threads()
 
 
     def _init(self):
